@@ -29,7 +29,11 @@ def find_open_slots(day: datetime, slot_minutes: Optional[int] = None) -> list[d
     tz = ZoneInfo(config.BUSINESS_TIMEZONE)
     slot_minutes = slot_minutes or config.APPOINTMENT_SLOT_MINUTES
 
-    day_local = day.astimezone(tz)
+    # A naive `day` (e.g. from a date-only "YYYY-MM-DD" string) names a
+    # calendar date, not a UTC instant — astimezone() would otherwise treat
+    # it as system-local (UTC on Cloud Run) and shift it a day backward in
+    # any timezone behind UTC.
+    day_local = day.replace(tzinfo=tz) if day.tzinfo is None else day.astimezone(tz)
     window_start = day_local.replace(
         hour=config.BUSINESS_HOURS_START, minute=0, second=0, microsecond=0
     )
