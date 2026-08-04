@@ -11,7 +11,8 @@ its URL goes into the ElevenLabs agent's Tools section as an MCP server URL.
 | `check_availability` | Open appointment slots on a given day (Calendar freebusy) |
 | `book_appointment` | Books a Calendar event + sends a Gmail confirmation |
 | `reschedule_appointment` | Moves an existing appointment |
-| `cancel_appointment` | Cancels an existing appointment |
+| `cancel_appointment` | Cancels an existing appointment + sends a Gmail cancellation notice |
+| `find_appointment` | Looks up an existing appointment by customer email/phone — needed when a caller references a booking from an earlier call and doesn't have the internal appointment_id |
 | `intake_trade_in` | Captures trade-in details, returns a ballpark estimate + a `suggested_next_action` hint so the agent chains into booking a test drive |
 | `check_vehicle_status` | Service status + open recall lookup by VIN |
 | `dealership_faq_lookup` | Answers general questions from a small static KB |
@@ -61,6 +62,37 @@ gcloud secrets add-iam-policy-binding dealership-google-refresh-token \
   --member "serviceAccount:PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
   --role "roles/secretmanager.secretAccessor"
 ```
+
+## Appointment persistence (Firestore)
+
+`book_appointment`, `reschedule_appointment`, `cancel_appointment`, and
+`find_appointment` all read/write through `app/data/store.py`, which is
+backed by **Firestore (Native mode)** — not an in-memory dict. This matters
+specifically for `find_appointment`: a caller referencing a booking made in
+a *previous* call has no way to hand back an internal ID, so lookup has to
+survive past the process that created the record, across Cloud Run cold
+starts and instances.
+
+One-time setup:
+
+```bash
+gcloud services enable firestore.googleapis.com --project vintti-voice-agent
+
+# If this project has never had a Firestore database, create one (Native
+# mode; pick a region — us-central1 to match Cloud Run is fine):
+gcloud firestore databases create --project vintti-voice-agent --location us-central1
+
+PROJECT_NUMBER=$(gcloud projects describe vintti-voice-agent --format="value(projectNumber)")
+gcloud projects add-iam-policy-binding vintti-voice-agent \
+  --member "serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role "roles/datastore.user"
+```
+
+`find_appointment` filters on `tenant_id` plus `customer_email` or
+`customer_phone` — both equality filters, so this works without a
+composite index. If a future query adds an inequality filter or ordering,
+Firestore will return an error containing a direct link to create the
+needed index; follow that link rather than guessing at index config.
 
 ## Deploying
 
@@ -154,9 +186,13 @@ input instead of `.astimezone()`.
 
 ## Known v2 tradeoffs (by design, not oversight)
 
-- **In-memory store** (`app/data/store.py`) for trade-in/appointment
-  records — resets on cold start, doesn't survive multiple instances. Fine
-  for a single-tenant demo; v3 swaps this for Firestore/Cloud SQL.
+- **Firestore store** (`app/data/store.py`) for trade-in/appointment
+  records — real persistence, but no schema migrations, no transactions
+  beyond single-document updates, and `find_appointment` is a simple
+  equality-filter lookup, not a real customer-matching system (a caller
+  who gives a slightly different email/phone than what was booked won't
+  match). Fine for a single-tenant demo; v3's multi-tenant version needs a
+  real customer identity model on top of this, not just more Firestore.
 - **Static FAQ KB + keyword scoring**, not embeddings — the KB is a handful
   of entries; not worth a vector store yet.
 - **`tenant_id` threaded through every tool and record** even though v2 only

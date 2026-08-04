@@ -11,6 +11,7 @@ from app.tools.appointments import (
     book_appointment,
     cancel_appointment,
     check_availability,
+    find_appointment,
     reschedule_appointment,
 )
 from app.tools.faq import dealership_faq_lookup
@@ -24,6 +25,7 @@ mcp.tool(check_availability)
 mcp.tool(book_appointment)
 mcp.tool(reschedule_appointment)
 mcp.tool(cancel_appointment)
+mcp.tool(find_appointment)
 mcp.tool(intake_trade_in)
 mcp.tool(check_vehicle_status)
 mcp.tool(dealership_faq_lookup)
