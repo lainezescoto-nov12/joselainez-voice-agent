@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# mcp-server (python)
+mcp-server/.venv/
+mcp-server/__pycache__/
+mcp-server/**/__pycache__/
+mcp-server/*.egg-info/
+mcp-server/credentials.json
+mcp-server/token.json
