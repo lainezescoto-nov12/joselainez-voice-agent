@@ -7,6 +7,7 @@ import os
 
 from fastmcp import FastMCP
 
+from app.logging_utils import logged
 from app.tools.appointments import (
     book_appointment,
     cancel_appointment,
@@ -21,16 +22,16 @@ from app.tools.vehicle_status import check_vehicle_status
 
 mcp = FastMCP("dealership-voice-agent")
 
-mcp.tool(check_availability)
-mcp.tool(book_appointment)
-mcp.tool(reschedule_appointment)
-mcp.tool(cancel_appointment)
-mcp.tool(find_appointment)
-mcp.tool(intake_trade_in)
-mcp.tool(check_vehicle_status)
-mcp.tool(dealership_faq_lookup)
-mcp.tool(trigger_notification)
-mcp.tool(trigger_outbound_reminder)
+mcp.tool(logged(check_availability))
+mcp.tool(logged(book_appointment))
+mcp.tool(logged(reschedule_appointment))
+mcp.tool(logged(cancel_appointment))
+mcp.tool(logged(find_appointment))
+mcp.tool(logged(intake_trade_in))
+mcp.tool(logged(check_vehicle_status))
+mcp.tool(logged(dealership_faq_lookup))
+mcp.tool(logged(trigger_notification))
+mcp.tool(logged(trigger_outbound_reminder))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))
