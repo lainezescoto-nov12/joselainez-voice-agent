@@ -100,6 +100,58 @@ source .venv/bin/activate
 python -m app.server    # serves on http://localhost:8080
 ```
 
+## Deploy troubleshooting
+
+### `PermissionDenied` on Cloud Build source/Artifact Registry buckets
+
+Newer GCP projects don't auto-grant the legacy default Editor/Viewer roles
+to the compute service account (`PROJECT_NUMBER-compute@developer.gserviceaccount.com`)
+the way older projects did. If `gcloud run deploy --source .` fails with a
+permissions error reading the Cloud Build source bucket
+(`run-sources-*` or `PROJECT_ID_cloudbuild`) or pushing to the
+`cloud-run-source-deploy` Artifact Registry repo, this is almost certainly
+why — check IAM before assuming anything else is misconfigured.
+
+Fix (project-level, covers every future source-based deploy, not just one bucket):
+
+```bash
+PROJECT_NUMBER=$(gcloud projects describe vintti-voice-agent --format="value(projectNumber)")
+SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+
+gcloud projects add-iam-policy-binding vintti-voice-agent \
+  --member "serviceAccount:${SA}" --role "roles/storage.objectViewer"
+gcloud projects add-iam-policy-binding vintti-voice-agent \
+  --member "serviceAccount:${SA}" --role "roles/logging.logWriter"
+gcloud projects add-iam-policy-binding vintti-voice-agent \
+  --member "serviceAccount:${SA}" --role "roles/artifactregistry.writer"
+```
+
+If Cloud Build logs come back empty/inaccessible, the Cloud Build service
+account (`PROJECT_NUMBER@cloudbuild.gserviceaccount.com`) may also need
+`roles/logging.logWriter`.
+
+### `Error 403: org_internal` during the one-time OAuth consent
+
+The OAuth consent screen (**Google Auth Platform → Audience** in GCP
+Console) defaulted to **User type: Internal**, which only allows accounts
+inside a Workspace org to consent — a personal Gmail account gets blocked
+before it even sees the permission screen. Fix: set **User type: External**,
+leave **Publishing status: Testing**, and add the consenting Gmail address
+under **Test users**. Testing-status apps show an "unverified app" warning
+in the consent screen — click through Advanced → "Go to (app name)
+(unsafe)"; that's expected for an unpublished demo app, not a real problem.
+
+### Naive-datetime timezone bug (fixed, but a general lesson)
+
+`check_availability` originally called `.astimezone(tz)` on a naive
+`datetime` parsed from a date-only string. A naive `datetime` gets silently
+treated as being in the *system's local timezone* (UTC on Cloud Run) before
+converting — so a request for a date in `America/New_York` (UTC behind)
+came back shifted a day. Local testing didn't catch it; a smoke test
+against the real deployed service did. Fixed in
+`app/integrations/calendar.py` by calling `.replace(tzinfo=tz)` on naive
+input instead of `.astimezone()`.
+
 ## Known v2 tradeoffs (by design, not oversight)
 
 - **In-memory store** (`app/data/store.py`) for trade-in/appointment
