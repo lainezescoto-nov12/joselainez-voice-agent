@@ -27,16 +27,6 @@ SERVICE_CALENDAR_ID = os.environ.get("SERVICE_CALENDAR_ID", "primary")
 DEALERSHIP_FROM_EMAIL = os.environ.get("DEALERSHIP_FROM_EMAIL", "")
 DEALERSHIP_NAME = os.environ.get("DEALERSHIP_NAME", "Ridgeline Auto Group")
 
-# n8n webhook base + per-flow paths for the trigger_* tools.
-N8N_BASE_URL = os.environ.get("N8N_BASE_URL", "")
-N8N_NOTIFICATION_WEBHOOK_PATH = os.environ.get(
-    "N8N_NOTIFICATION_WEBHOOK_PATH", "/webhook/dealership-notification"
-)
-N8N_OUTBOUND_REMINDER_WEBHOOK_PATH = os.environ.get(
-    "N8N_OUTBOUND_REMINDER_WEBHOOK_PATH", "/webhook/dealership-outbound-reminder"
-)
-N8N_WEBHOOK_SECRET = os.environ.get("N8N_WEBHOOK_SECRET", "")
-
 # v2 is single-tenant, but every record carries tenant_id so v3 (LA Solutions
 # multi-tenant platform) can shard on it without a data migration.
 DEFAULT_TENANT_ID = os.environ.get("DEFAULT_TENANT_ID", "vintti-demo")

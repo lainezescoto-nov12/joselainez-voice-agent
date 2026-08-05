@@ -16,8 +16,16 @@ its URL goes into the ElevenLabs agent's Tools section as an MCP server URL.
 | `intake_trade_in` | Captures trade-in details, returns a ballpark estimate + a `suggested_next_action` hint so the agent chains into booking a test drive |
 | `check_vehicle_status` | Service status + open recall lookup by VIN |
 | `dealership_faq_lookup` | Answers general questions from a small static KB |
-| `trigger_notification` | Hands off confirmation/reschedule/cancellation emails to n8n |
-| `trigger_outbound_reminder` | Hands off the outbound proactive service-reminder call sequence to n8n |
+
+Appointment confirmation/reschedule/cancellation emails are sent directly
+via the Gmail API inside `book_appointment`/`reschedule_appointment`/
+`cancel_appointment` — no separate notification tool. The outbound
+proactive service-reminder flow lives entirely in n8n (a scheduled sweep,
+not something the voice agent calls) — see the top-level architecture spec
+for that workflow's design. Neither is an MCP tool; synchronous in-call
+actions call Google APIs directly for reliability, and the asynchronous
+scheduled reminder sweep is a workflow-orchestration problem, not a
+tool-call problem.
 
 ## Why the Google auth is two steps, not one
 
