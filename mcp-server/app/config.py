@@ -25,7 +25,7 @@ SERVICE_CALENDAR_ID = os.environ.get("SERVICE_CALENDAR_ID", "primary")
 
 # From address for confirmation/reschedule emails sent via Gmail API.
 DEALERSHIP_FROM_EMAIL = os.environ.get("DEALERSHIP_FROM_EMAIL", "")
-DEALERSHIP_NAME = os.environ.get("DEALERSHIP_NAME", "Vintti Motors")
+DEALERSHIP_NAME = os.environ.get("DEALERSHIP_NAME", "Ridgeline Auto Group")
 
 # n8n webhook base + per-flow paths for the trigger_* tools.
 N8N_BASE_URL = os.environ.get("N8N_BASE_URL", "")
