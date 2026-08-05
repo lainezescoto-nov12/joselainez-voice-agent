@@ -7,6 +7,21 @@ const DEMO_API_URL = process.env.NEXT_PUBLIC_DEMO_API_URL || "";
 
 type Step = "phone" | "code" | "calling" | "done" | "error";
 
+// Strips spaces/dashes/parens so "(984) 388-9822" and "+1 984-388-9822"
+// both work. Does not guess a missing country code -- that would risk
+// silently sending to the wrong country -- but only errors on that
+// specific case, with a message telling the visitor what to add.
+function normalizePhone(raw: string): { value: string; error: string | null } {
+  const stripped = raw.replace(/[\s\-().]/g, "");
+  if (!stripped.startsWith("+")) {
+    return {
+      value: stripped,
+      error: "Add your country code with a + in front, e.g. +19843889822 or +50432964465.",
+    };
+  }
+  return { value: stripped, error: null };
+}
+
 export default function OutboundDemoCall() {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
@@ -17,13 +32,20 @@ export default function OutboundDemoCall() {
   const apiConfigured = Boolean(DEMO_API_URL);
 
   const sendCode = async () => {
+    const { value: normalized, error } = normalizePhone(phone);
+    if (error) {
+      setErrorMessage(error);
+      setStep("error");
+      return;
+    }
+
     setLoading(true);
     setErrorMessage("");
     try {
       const res = await fetch(`${DEMO_API_URL}/verify/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone_number: phone }),
+        body: JSON.stringify({ phone_number: normalized }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -46,7 +68,7 @@ export default function OutboundDemoCall() {
       const res = await fetch(`${DEMO_API_URL}/verify/check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone_number: phone, code }),
+        body: JSON.stringify({ phone_number: normalizePhone(phone).value, code }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
