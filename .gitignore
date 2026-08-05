@@ -47,3 +47,9 @@ mcp-server/**/__pycache__/
 mcp-server/*.egg-info/
 mcp-server/credentials.json
 mcp-server/token.json
+
+# demo-api (python)
+demo-api/.venv/
+demo-api/__pycache__/
+demo-api/**/__pycache__/
+demo-api/*.egg-info/

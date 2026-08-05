@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import GaugeStrip from "@/components/GaugeStrip";
+import OutboundDemoCall from "@/components/OutboundDemoCall";
 import {
   Wrench,
   Mic,
@@ -25,14 +26,14 @@ type Tool = {
 
 const INITIAL_TOOLS: Tool[] = [
   { id: "check_availability", name: "check_availability", description: "Queries the service/sales calendar for open slots", lastCalled: null },
-  { id: "book_appointment", name: "book_appointment", description: "Creates a calendar event and confirms the booking", lastCalled: null },
+  { id: "book_appointment", name: "book_appointment", description: "Creates a calendar event and sends a confirmation email directly", lastCalled: null },
   { id: "reschedule_appointment", name: "reschedule_appointment", description: "Moves an existing appointment to a new slot", lastCalled: null },
-  { id: "cancel_appointment", name: "cancel_appointment", description: "Cancels an existing appointment", lastCalled: null },
+  { id: "cancel_appointment", name: "cancel_appointment", description: "Cancels an existing appointment and sends a cancellation email", lastCalled: null },
+  { id: "find_appointment", name: "find_appointment", description: "Looks up an existing appointment by email or phone from an earlier call", lastCalled: null },
   { id: "intake_trade_in", name: "intake_trade_in", description: "Captures make, model, mileage, and condition for a trade-in", lastCalled: null },
   { id: "check_vehicle_status", name: "check_vehicle_status", description: "Looks up service/recall status by VIN", lastCalled: null },
   { id: "dealership_faq_lookup", name: "dealership_faq_lookup", description: "Answers general questions grounded in the uploaded knowledge base", lastCalled: null },
-  { id: "trigger_notification", name: "trigger_notification", description: "Hands off to n8n to send confirmation/reschedule emails", lastCalled: null },
-  { id: "trigger_outbound_reminder", name: "trigger_outbound_reminder", description: "Hands off to n8n to start an outbound service-reminder call", lastCalled: null },
+  { id: "trigger_outbound_reminder", name: "trigger_outbound_reminder", description: "Places a real outbound reminder call directly via ElevenLabs", lastCalled: null },
 ];
 
 type TraceStep = {
@@ -50,7 +51,6 @@ const DEMO_TRACE: TraceStep[] = [
   { speaker: "caller", text: "Perfect, yes." },
   { speaker: "tool", text: "book_appointment({ time: \"Thursday 2:30 PM\", department: \"sales\", type: \"test_drive\" }) \u2192 confirmed" },
   { speaker: "caller", text: "Can you email me the confirmation? It's jose@example.com" },
-  { speaker: "tool", text: "trigger_notification({ email: \"jose@example.com\", type: \"confirmation\" }) \u2192 sent via n8n" },
   { speaker: "agent", text: "Done, confirmation's on its way to your inbox. See you Thursday." },
 ];
 
@@ -179,6 +179,8 @@ export default function ConfigConsole() {
       <main className="max-w-6xl mx-auto px-6 py-8">
         {activeTab === "configure" ? (
           <div className="flex flex-col gap-6">
+            <OutboundDemoCall />
+
             <SectionCard
               icon={<MessagesSquare size={16} />}
               title="Identity & Behavior"
