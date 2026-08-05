@@ -45,6 +45,11 @@ def place_outbound_call(
             "dynamic_variables": {
                 "customer_name": customer_name or "there",
                 "reminder_reason": reminder_reason,
+                # So the agent can look up the appointment itself (via
+                # find_appointment) without asking the person it just
+                # called to identify themselves -- it's already calling
+                # their number.
+                "customer_phone": to_number,
             },
         },
     }
