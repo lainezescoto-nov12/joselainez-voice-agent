@@ -27,6 +27,12 @@ SERVICE_CALENDAR_ID = os.environ.get("SERVICE_CALENDAR_ID", "primary")
 DEALERSHIP_FROM_EMAIL = os.environ.get("DEALERSHIP_FROM_EMAIL", "")
 DEALERSHIP_NAME = os.environ.get("DEALERSHIP_NAME", "Ridgeline Auto Group")
 
+# ElevenLabs outbound calling — used by trigger_outbound_reminder to place a
+# real call directly, no workflow engine in between.
+ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
+ELEVENLABS_AGENT_ID = os.environ.get("ELEVENLABS_AGENT_ID", "")
+ELEVENLABS_AGENT_PHONE_NUMBER_ID = os.environ.get("ELEVENLABS_AGENT_PHONE_NUMBER_ID", "")
+
 # v2 is single-tenant, but every record carries tenant_id so v3 (LA Solutions
 # multi-tenant platform) can shard on it without a data migration.
 DEFAULT_TENANT_ID = os.environ.get("DEFAULT_TENANT_ID", "vintti-demo")

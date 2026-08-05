@@ -16,6 +16,7 @@ from app.tools.appointments import (
     reschedule_appointment,
 )
 from app.tools.faq import dealership_faq_lookup
+from app.tools.reminders import trigger_outbound_reminder
 from app.tools.trade_in import intake_trade_in
 from app.tools.vehicle_status import check_vehicle_status
 
@@ -29,6 +30,7 @@ mcp.tool(logged(find_appointment))
 mcp.tool(logged(intake_trade_in))
 mcp.tool(logged(check_vehicle_status))
 mcp.tool(logged(dealership_faq_lookup))
+mcp.tool(logged(trigger_outbound_reminder))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))

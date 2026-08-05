@@ -16,16 +16,28 @@ its URL goes into the ElevenLabs agent's Tools section as an MCP server URL.
 | `intake_trade_in` | Captures trade-in details, returns a ballpark estimate + a `suggested_next_action` hint so the agent chains into booking a test drive |
 | `check_vehicle_status` | Service status + open recall lookup by VIN |
 | `dealership_faq_lookup` | Answers general questions from a small static KB |
+| `trigger_outbound_reminder` | Places a real outbound call to a customer directly via ElevenLabs' Twilio-backed outbound API — manual trigger only, not a scheduled sweep (see below) |
 
 Appointment confirmation/reschedule/cancellation emails are sent directly
 via the Gmail API inside `book_appointment`/`reschedule_appointment`/
-`cancel_appointment` — no separate notification tool. The outbound
-proactive service-reminder flow lives entirely in n8n (a scheduled sweep,
-not something the voice agent calls) — see the top-level architecture spec
-for that workflow's design. Neither is an MCP tool; synchronous in-call
-actions call Google APIs directly for reliability, and the asynchronous
-scheduled reminder sweep is a workflow-orchestration problem, not a
-tool-call problem.
+`cancel_appointment` — no separate notification tool.
+
+`trigger_outbound_reminder` calls ElevenLabs directly (`app/integrations/elevenlabs.py`,
+`POST /v1/convai/twilio/outbound-call`) — no n8n, no workflow engine in
+between. This is deliberately a **manual-trigger** tool: something in the
+current conversation (a staff member using the agent, or an explicit
+instruction) asks for a reminder call to go out to one specific customer
+right now. It is not a scheduled "everyone due for service" sweep — that
+would need its own trigger (e.g. GCP Cloud Scheduler hitting a dedicated
+endpoint) and is out of scope for this tool. n8n was the original plan for
+an autonomous scheduled sweep but was dropped mid-build over reliability
+issues with n8n Cloud's provisioning; the honest scope right now is
+manual-trigger only.
+
+Requires three additional env vars: `ELEVENLABS_API_KEY`,
+`ELEVENLABS_AGENT_ID`, `ELEVENLABS_AGENT_PHONE_NUMBER_ID` — find the agent
+ID in the agent's settings/URL, and the phone number ID under Phone
+Numbers in the ElevenLabs dashboard (not the raw phone number itself).
 
 ## Why the Google auth is two steps, not one
 
