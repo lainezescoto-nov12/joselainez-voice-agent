@@ -74,7 +74,7 @@ def verify_check(body: CheckCodeRequest):
     if not approved:
         raise HTTPException(status_code=400, detail="Incorrect or expired code.")
 
-    allowed, reason = rate_limit.check_and_record(phone_number)
+    allowed, reason = rate_limit.check(phone_number)
     if not allowed:
         raise HTTPException(status_code=429, detail=reason)
 
@@ -83,7 +83,11 @@ def verify_check(body: CheckCodeRequest):
     except (elevenlabs.ElevenLabsCallError, Exception) as exc:
         raise HTTPException(status_code=502, detail=f"Could not place the call: {exc}")
 
-    return {"call_placed": bool(result.get("success")), "conversation_id": result.get("conversation_id")}
+    call_placed = bool(result.get("success"))
+    if call_placed:
+        rate_limit.record(phone_number)
+
+    return {"call_placed": call_placed, "conversation_id": result.get("conversation_id")}
 
 
 @app.get("/health")
