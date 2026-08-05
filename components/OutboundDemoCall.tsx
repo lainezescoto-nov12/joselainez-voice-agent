@@ -24,7 +24,7 @@ function normalizePhone(raw: string): { value: string; error: string | null } {
 
 export default function OutboundDemoCall() {
   const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
+  const [phone, setPhone] = useState("+");
   const [code, setCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -85,7 +85,7 @@ export default function OutboundDemoCall() {
 
   const reset = () => {
     setStep("phone");
-    setPhone("");
+    setPhone("+");
     setCode("");
     setErrorMessage("");
   };
@@ -128,7 +128,7 @@ export default function OutboundDemoCall() {
               />
               <button
                 onClick={sendCode}
-                disabled={loading || !phone || !apiConfigured}
+                disabled={loading || phone.replace(/\D/g, "").length < 7 || !apiConfigured}
                 className="px-4 py-2 text-sm bg-amber text-background rounded-md font-medium hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {loading ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
