@@ -10,6 +10,7 @@ import httpx
 from app import config
 
 OUTBOUND_CALL_URL = "https://api.elevenlabs.io/v1/convai/twilio/outbound-call"
+SIGNED_URL_URL = "https://api.elevenlabs.io/v1/convai/conversation/get_signed_url"
 
 
 class ElevenLabsCallError(RuntimeError):
@@ -50,3 +51,25 @@ def place_demo_call(to_number: str) -> dict:
     )
     response.raise_for_status()
     return response.json()
+
+
+def get_signed_url() -> str:
+    """Mint a short-lived signed WebRTC/WS URL for the browser widget.
+
+    Only needed if the agent is private -- a public agent can be started
+    from the browser with just the agent_id, no server round-trip. This
+    exists so the API key never has to reach the browser either way.
+    """
+    if not config.ELEVENLABS_API_KEY:
+        raise ElevenLabsCallError("ELEVENLABS_API_KEY is not configured")
+    if not config.ELEVENLABS_AGENT_ID:
+        raise ElevenLabsCallError("ELEVENLABS_AGENT_ID is not configured")
+
+    response = httpx.get(
+        SIGNED_URL_URL,
+        params={"agent_id": config.ELEVENLABS_AGENT_ID},
+        headers={"xi-api-key": config.ELEVENLABS_API_KEY},
+        timeout=10.0,
+    )
+    response.raise_for_status()
+    return response.json()["signed_url"]

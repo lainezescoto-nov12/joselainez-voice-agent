@@ -90,6 +90,20 @@ def verify_check(body: CheckCodeRequest):
     return {"call_placed": call_placed, "conversation_id": result.get("conversation_id")}
 
 
+@app.get("/convai/signed-url")
+def convai_signed_url():
+    """For the browser widget: mint a signed URL server-side so the
+    ElevenLabs API key never has to reach the browser. Only needed if the
+    agent is private -- a public agent can start a session with just its
+    agent_id, no call to this endpoint at all.
+    """
+    try:
+        signed_url = elevenlabs.get_signed_url()
+    except (elevenlabs.ElevenLabsCallError, Exception) as exc:
+        raise HTTPException(status_code=502, detail=f"Could not get signed URL: {exc}")
+    return {"signedUrl": signed_url}
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
