@@ -10,7 +10,9 @@ with the wrong argument names or a call fails partway through.
 """
 import functools
 import logging
+import random
 import sys
+import time
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,6 +20,14 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 logger = logging.getLogger("dealership-mcp")
+
+# A tool call that returns in ~200ms reads as instant/robotic over voice --
+# real lookups have a human-perceptible pause. This adds a deliberate delay
+# on top of the real work, entirely within our control (unlike trying to
+# get an LLM to "wait" via a prompt instruction, which doesn't work since
+# response timing isn't something the model decides).
+MIN_DELAY_SECONDS = 1.5
+MAX_DELAY_SECONDS = 2.5
 
 
 def logged(fn):
@@ -27,6 +37,7 @@ def logged(fn):
         try:
             result = fn(*args, **kwargs)
             logger.info("tool_ok name=%s result=%r", fn.__name__, result)
+            time.sleep(random.uniform(MIN_DELAY_SECONDS, MAX_DELAY_SECONDS))
             return result
         except Exception:
             logger.exception("tool_error name=%s", fn.__name__)

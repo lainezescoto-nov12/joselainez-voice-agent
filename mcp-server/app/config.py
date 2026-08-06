@@ -33,6 +33,13 @@ ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
 ELEVENLABS_AGENT_ID = os.environ.get("ELEVENLABS_AGENT_ID", "")
 ELEVENLABS_AGENT_PHONE_NUMBER_ID = os.environ.get("ELEVENLABS_AGENT_PHONE_NUMBER_ID", "")
 
+# n8n parts-availability workflow. Synchronous, unlike the old outbound-
+# reminder n8n design -- a caller asking about parts needs a live answer
+# during the call, not a queued fire-and-forget.
+N8N_PARTS_WEBHOOK_URL = os.environ.get(
+    "N8N_PARTS_WEBHOOK_URL", "https://lainezescoto.app.n8n.cloud/webhook/parts-availability"
+)
+
 # v2 is single-tenant, but every record carries tenant_id so v3 (LA Solutions
 # multi-tenant platform) can shard on it without a data migration.
 DEFAULT_TENANT_ID = os.environ.get("DEFAULT_TENANT_ID", "vintti-demo")
