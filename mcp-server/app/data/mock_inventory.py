@@ -34,6 +34,43 @@ VEHICLES_BY_VIN = {
         "open_recall": True,
         "recall_description": "Fuel pump recall NHTSA #21V-912 — replacement covered under warranty.",
     },
+    "5NPE24AF9FH000001": {
+        "vin": "5NPE24AF9FH000001",
+        "year": 2019,
+        "make": "Hyundai",
+        "model": "Sonata",
+        "status": "ready_for_pickup",
+        "service_notes": "Oil change and multi-point inspection complete.",
+        "open_recall": False,
+    },
+    "KM8J3CA46LU000001": {
+        "vin": "KM8J3CA46LU000001",
+        "year": 2020,
+        "make": "Hyundai",
+        "model": "Tucson",
+        "status": "in_service",
+        "service_notes": "Replacing rear brake pads and rotors.",
+        "open_recall": True,
+        "recall_description": "Theta II engine recall NHTSA #20V-473 — inspection and possible engine replacement covered under warranty.",
+    },
+    "4T1BF1FK5HU000001": {
+        "vin": "4T1BF1FK5HU000001",
+        "year": 2017,
+        "make": "Toyota",
+        "model": "Camry",
+        "status": "ready_for_pickup",
+        "service_notes": "Brake pad replacement complete, four-wheel alignment performed.",
+        "open_recall": False,
+    },
+    "5TFEY5F1XLX000001": {
+        "vin": "5TFEY5F1XLX000001",
+        "year": 2020,
+        "make": "Toyota",
+        "model": "Tundra",
+        "status": "in_service",
+        "service_notes": "Awaiting parts for a scheduled 30,000-mile service.",
+        "open_recall": False,
+    },
 }
 
 FAQ_KB = [
@@ -56,5 +93,21 @@ FAQ_KB = [
     {
         "question": "How do I check if my vehicle has an open recall?",
         "answer": "Ask for a vehicle status check with your VIN, or look it up at nhtsa.gov/recalls.",
+    },
+    {
+        "question": "What brands do you sell and service?",
+        "answer": "We're a Hyundai and Toyota dealership — sales, service, and parts for both brands. We can also service other makes, but factory parts and warranty work are strongest for Hyundai and Toyota.",
+    },
+    {
+        "question": "What's your address and how do I get there?",
+        "answer": "We're happy to text or email you directions — ask your service advisor or sales rep for the exact address when you call.",
+    },
+    {
+        "question": "Do you buy cars even if I'm not trading one in?",
+        "answer": "Yes, we buy vehicles outright, no trade-in or purchase required. Ask for a trade-in appraisal to get a ballpark value.",
+    },
+    {
+        "question": "What payment methods do you accept for service?",
+        "answer": "We accept all major credit cards, debit, and financing through our lending partners for larger repairs.",
     },
 ]
